@@ -1,8 +1,8 @@
 {
   "domain": "marshydro",
-  "name": "Mars Hydro",
-  "documentation": "https://github.com/suppqt/ha_mars_hydro",
-  "issue_tracker": "https://github.com/suppqt/ha_mars_hydro/issues",
+  "name": "Mars Hydro Cloud Integration",
+  "documentation": "https://github.com/suppqt/hass_mars_hydro",
+  "issue_tracker": "https://github.com/suppqt/hass_mars_hydro/issues",
   "codeowners": ["@suppqt"],
   "config_flow": true,
   "requirements": ["requests>=2.26.0"],
