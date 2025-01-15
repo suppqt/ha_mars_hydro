@@ -1,0 +1,8 @@
+{
+  "name": "Mars Hydro",
+  "filename": "ha_mars_hydro.zip",
+  "hide_default_branch": true,
+  "homeassistant": "2025.1.2",
+  "render_readme": true,
+  "zip_release": true
+}
