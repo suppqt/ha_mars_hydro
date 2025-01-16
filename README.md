@@ -13,7 +13,7 @@
 This integration communicates with the Mars Hydro Cloud and controls and monitors your Mars Hydro light devices through Home Assistant.
 
 ## Background
-- This integration is designed for **Mars Hydro FC3000** and other compatible models that are running with the Bluetooth USB Stick.
+- This integration is designed for **Mars Hydro FC...** and other compatible models that are running with the Bluetooth USB Stick.
 - It allows you to control the light's brightness, control the switch, and retrieve the brightness sensor value for your device.
 - This integration is built to be used with the Home Assistant platform, providing an easy way to manage your Mars Hydro lights through the cloud API.
 
