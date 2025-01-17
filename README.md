@@ -15,8 +15,8 @@ This integration communicates with the Mars Hydro Cloud and controls and monitor
 ## Additional Note
 Since i only own one device and it's an FC3000 Light, i was only able to get the api response for that one device and work with that.
 Anyway in case you have one light and its controlled by the Bluetooth Stick you are good to go :)
-I've no idea how multiple devices are getting responsed within the API or other devices like Fans and so on.
-Maybe i get the possibity to get access to another account someday for testing so i can add support for more devices (multiple lights might work already)
+I've no idea how multiple devices are getting responded within the API or other devices like fans and so on.
+Maybe i get the possibity to get access to another account someday for testing or get more devices so i can add support (multiple lights might work already)
 
 ## Background
 - This integration is designed for **Mars Hydro FC...** and other compatible models that are running with the Bluetooth USB Stick.
