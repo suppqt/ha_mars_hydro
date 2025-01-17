@@ -41,6 +41,8 @@ Maybe i get the possibity to get access to another account someday for testing o
      * **Brightness control**: Controls the brightness of your Mars Hydro light.
      * **Switch control**: Turns the device on/off.
      * **Brightness sensor**: Displays the current brightness level.
+       
+<img width="632" alt="image" src="https://github.com/user-attachments/assets/bc811655-dfcb-4159-9d45-e2bab7674ca3" />
 
 3. **Currently Supporting Only One Device**:
    * This integration currently supports **only one Mars Hydro device** (such as a light). Additional devices are not yet supported.
