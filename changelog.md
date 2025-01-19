@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.0.3
+
+- fixxed missing toggle_switch function
+
 ## Version 1.0.2
 
 ### 🚀 New Features

@@ -57,6 +57,39 @@ class MarsHydroAPI:
         if not self.token:
             await self.login()
 
+    async def toggle_switch(self, is_close: bool, device_id: str):
+        """Toggle the light or fan switch (on/off)."""
+        await self._ensure_token()
+
+        system_data = self._generate_system_data()
+        headers = {
+            "systemData": system_data,
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "isClose": is_close,
+            "deviceId": device_id,  # Use the provided device_id
+            "groupId": None,
+        }
+
+        _LOGGER.debug(f"Sending toggle switch payload: {json.dumps(payload, indent=2)}")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{self.base_url}/udm/lampSwitch/v1", headers=headers, json=payload
+            ) as response:
+                response_json = await response.json()
+                _LOGGER.info(
+                    "API Toggle Switch Response: %s",
+                    json.dumps(response_json, indent=2),
+                )
+                if response_json.get("code") == "102":  # Handle token expiration
+                    _LOGGER.warning("Token expired, re-authenticating...")
+                    await self.login()
+                    return await self.toggle_switch(is_close, device_id)
+                return response_json
+
+
     async def _process_device_list(self, product_type):
         """Retrieve device list for a given product type."""
         await self._ensure_token()
