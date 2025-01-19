@@ -57,44 +57,8 @@ class MarsHydroAPI:
         if not self.token:
             await self.login()
 
-    async def toggle_switch(self, is_close: bool):
-        """Toggle the light switch (on/off)."""
-        await self._ensure_token()
-
-        # Retrieve the dynamic device_id if not set
-        if not self.device_id:
-            device_data = await self.get_lightdata()
-            if device_data:
-                self.device_id = device_data.get("id")
-
-        system_data = self._generate_system_data()
-        headers = {
-            "systemData": system_data,
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "isClose": is_close,
-            "deviceId": self.device_id,  # Use dynamic device_id
-            "groupId": None,
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.base_url}/udm/lampSwitch/v1", headers=headers, json=payload
-            ) as response:
-                response_json = await response.json()
-                _LOGGER.info(
-                    "API Toggle Switch Response: %s",
-                    json.dumps(response_json, indent=2),
-                )
-                if response_json.get("code") == "102":  # Handle token expiration
-                    _LOGGER.warning("Token expired, re-authenticating...")
-                    await self.login()
-                    return await self.toggle_switch(is_close)
-                return response_json
-
-    async def get_lightdata(self):
-        """Retrieve light data from the Mars Hydro API."""
+    async def _process_device_list(self, product_type):
+        """Retrieve device list for a given product type."""
         await self._ensure_token()
         system_data = self._generate_system_data()
         headers = {
@@ -104,43 +68,61 @@ class MarsHydroAPI:
             "User-Agent": "Python/3.x",
             "systemData": system_data,
         }
-        payload = {"currentPage": 0, "type": None, "productType": "LIGHT"}
+        payload = {"currentPage": 0, "type": None, "productType": product_type}
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 f"{self.base_url}/udm/getDeviceList/v1", headers=headers, json=payload
             ) as response:
                 response_json = await response.json()
-                _LOGGER.info(
-                    "API Get Light Data Response: %s",
-                    json.dumps(response_json, indent=2),
-                )
-
                 if response_json.get("code") == "000":
                     device_list = response_json.get("data", {}).get("list", [])
-                    if device_list:
-                        device_data = device_list[0]
-                        self.device_id = device_data.get(
-                            "id"
-                        )  # Store dynamic device_id
-                        return {
-                            "deviceName": device_data.get("deviceName"),
-                            "deviceLightRate": device_data.get("deviceLightRate"),
-                            "isClose": device_data.get("isClose"),
-                            "id": self.device_id,
-                        }
-                    else:
-                        _LOGGER.warning("No devices found.")
-                        return None
+                    return device_list
                 else:
                     _LOGGER.error("Error in API response: %s", response_json.get("msg"))
-                    return None
+                    return []
+
+    async def get_lightdata(self):
+        """Retrieve light data from the Mars Hydro API."""
+        device_list = await self._process_device_list("LIGHT")
+        if device_list:
+            device_data = device_list[0]
+            self.device_id = device_data.get("id")  # Store dynamic device_id
+            return {
+                "deviceName": device_data.get("deviceName"),
+                "deviceLightRate": device_data.get("deviceLightRate"),
+                "isClose": device_data.get("isClose"),
+                "id": self.device_id,
+                "deviceImage": device_data.get("deviceImg"),
+            }
+        else:
+            _LOGGER.warning("No light devices found.")
+            return None
+
+    async def get_fandata(self):
+        """Retrieve fan data from the Mars Hydro API."""
+        device_list = await self._process_device_list("WIND")
+        if device_list:
+            device_data = device_list[0]
+            _LOGGER.debug("Fan data retrieved: %s", json.dumps(device_data, indent=2))
+            return {
+                "deviceName": device_data.get("deviceName"),
+                "deviceLightRate": device_data.get("deviceLightRate"),
+                "humidity": device_data.get("humidity"),
+                "temperature": device_data.get("temperature"),
+                "speed": device_data.get("speed"),
+                "isClose": device_data.get("isClose"),
+                "id": device_data.get("id"),
+                "deviceImage": device_data.get("deviceImg"),
+            }
+        else:
+            _LOGGER.warning("No fan devices found.")
+            return None
 
     async def set_brightness(self, brightness):
         """Set the brightness of the Mars Hydro light."""
         await self._ensure_token()
 
-        # Retrieve the dynamic device_id if not set
         if not self.device_id:
             device_data = await self.get_lightdata()
             if device_data:
@@ -156,7 +138,7 @@ class MarsHydroAPI:
         }
         payload = {
             "light": brightness,
-            "deviceId": self.device_id,  # Use dynamic device_id
+            "deviceId": self.device_id,
             "groupId": None,
         }
 
@@ -171,6 +153,37 @@ class MarsHydroAPI:
                 )
                 return response_json
 
+    async def set_fanspeed(self, speed, fan_device_id):
+        """Set the speed of the Mars Hydro fan."""
+        await self._ensure_token()
+
+        system_data = self._generate_system_data()
+        headers = {
+            "Accept-Encoding": "gzip",
+            "Content-Type": "application/json",
+            "Host": "api.lgledsolutions.com",
+            "systemData": system_data,
+            "User-Agent": "Python/3.x",
+        }
+        payload = {
+            "light": speed,
+            "deviceId": fan_device_id,
+            "groupId": None,
+        }
+
+        _LOGGER.debug(f"Sending fan speed payload: {json.dumps(payload, indent=2)}")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{self.base_url}/udm/adjustLight/v1", headers=headers, json=payload
+            ) as response:
+                response_json = await response.json()
+                _LOGGER.info(
+                    "API Set Fan Speed Response: %s",
+                    json.dumps(response_json, indent=2),
+                )
+                return response_json
+
     def _generate_system_data(self):
         """Generate systemData payload with dynamic device_id."""
         return json.dumps(
@@ -180,7 +193,7 @@ class MarsHydroAPI:
                 "osType": "android",
                 "osVersion": "14",
                 "deviceType": "SM-S928C",
-                "deviceId": self.device_id,  # Use dynamic device_id here
+                "deviceId": self.device_id,
                 "netType": "wifi",
                 "wifiName": "123",
                 "timestamp": int(time.time()),

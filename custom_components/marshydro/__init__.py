@@ -8,7 +8,7 @@ from .api import MarsHydroAPI
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["switch", "light", "sensor"]  # Sensor hinzugefügt
+PLATFORMS = ["sensor", "light", "switch", "fan"]  # Sensor hinzugefügt
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -30,14 +30,40 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Gerät registrieren
     device_registry = dr.async_get(hass)
-    device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, "mars_hydro_device")},
-        manufacturer="Mars Hydro",
-        name="Mars Hydro Light",
-        model="Mars Hydro FC3000",
-    )
 
+    # Light-Gerät registrieren
+    light_data = await api.get_lightdata()
+    if light_data:
+        device_registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, light_data["id"])},
+            manufacturer="Mars Hydro",
+            name=light_data["deviceName"],
+            model="Mars Hydro Light",
+        )
+        _LOGGER.info(
+            f"Light Device {light_data['deviceName']} wurde erfolgreich registriert."
+        )
+    else:
+        _LOGGER.warning("Kein Light-Gerät gefunden, Registrierung übersprungen.")
+
+    # Fan-Gerät registrieren
+    fan_data = await api.get_fandata()
+    if fan_data:
+        device_registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, fan_data["id"])},
+            manufacturer="Mars Hydro",
+            name=fan_data["deviceName"],
+            model="Mars Hydro Fan",
+        )
+        _LOGGER.info(
+            f"Fan Device {fan_data['deviceName']} wurde erfolgreich registriert."
+        )
+    else:
+        _LOGGER.warning("Kein Fan-Gerät gefunden, Registrierung übersprungen.")
+
+    # Plattformen laden
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

@@ -18,8 +18,8 @@ class MarsHydroBrightnessLight(LightEntity):
 
     def __init__(self, api, entry_id):
         self._api = api
-        self._name = "Mars Hydro Brightness Light"
         self._device_id = None  # To store the dynamic device_id
+        self._device_name = None  # To store the dynamic deviceName
         self._brightness = None
         self._available = False
         self._state = None
@@ -27,9 +27,12 @@ class MarsHydroBrightnessLight(LightEntity):
 
     @property
     def name(self):
-        """Return the name of the light, dynamically including device_id."""
-        # Include device_id in the name dynamically once available
-        return f"{self._name} ({self._device_id})" if self._device_id else self._name
+        """Return the name of the light, dynamically including the device name and ID."""
+        if self._device_name and self._device_id:
+            return f"{self._device_name} ({self._device_id})"
+        elif self._device_name:
+            return self._device_name
+        return "Mars Hydro Brightness Light"
 
     @property
     def brightness(self):
@@ -49,17 +52,25 @@ class MarsHydroBrightnessLight(LightEntity):
     @property
     def unique_id(self):
         """Return a unique ID for the light."""
-        return f"{self._entry_id}_light"
+        return (
+            f"{self._entry_id}_light_{self._device_id}"
+            if self._device_id
+            else f"{self._entry_id}_light"
+        )
 
     @property
     def device_info(self):
         """Return device information for linking with the device registry."""
-        # Device information remains static
+        if not self._device_id or not self._device_name:
+            return None
+
         return {
-            "identifiers": {(DOMAIN, "mars_hydro_device")},
-            "name": "Mars Hydro Light",  # Keeping the device name consistent
+            "identifiers": {
+                (DOMAIN, self._device_id)
+            },  # Match the registered device ID
+            "name": self._device_name,  # Use the dynamic deviceName
             "manufacturer": "Mars Hydro",
-            "model": "Mars Hydro",
+            "model": "Mars Hydro Light",
         }
 
     @property
@@ -116,10 +127,15 @@ class MarsHydroBrightnessLight(LightEntity):
                 self._device_id = light_data[
                     "id"
                 ]  # Set device_id dynamically from the API response
+                self._device_name = light_data[
+                    "deviceName"
+                ]  # Set deviceName dynamically
                 self._brightness = int((light_data["deviceLightRate"] / 100) * 255)
                 self._state = not light_data["isClose"]
                 self._available = True
-                _LOGGER.info(f"Updated brightness: {self._brightness}")
+                _LOGGER.info(
+                    f"Updated light: {self._device_name}, brightness: {self._brightness}"
+                )
             else:
                 self._available = False
                 self._state = None
