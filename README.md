@@ -10,12 +10,31 @@
 [![Community Forum][forum-shield]][forum]
 
 ## Mars Hydro Cloud Integration
-This integration communicates with the Mars Hydro Cloud and controls and monitors your Mars Hydro light devices through Home Assistant.
+This integration communicates with the Mars Hydro Cloud and controls and monitors your Mars Hydro devices (lights and fans) through Home Assistant.
+
+⚠️ Warning: API only supports one device to be logged in, so you will get kicked out of the app as soon as you login.
+
+## Additional Note
+Since I only own one device (an FC3000 Light), I initially focused on supporting that device. However, support for **fans** and their controls has now been added. If you have the Bluetooth Stick, this integration should work with your devices.
+
+## Features Added:
+- **Fan Entity**:
+  - Control fan speed via a slider (25%-100%).
+  - Monitor fan speed as a percentage.
+- **Fan Sensors**:
+  - **Temperature (°F and °C)**.
+  - **Humidity**.
+  - **Fan speed**.
+- **Device Images**: (work in progress)
+  - Device images are getting displayed in Home Assistant soon
 
 ## Background
-- This integration is designed for **Mars Hydro FC3000** and other compatible models that are running with the Bluetooth USB Stick.
-- It allows you to control the light's brightness, control the switch, and retrieve the brightness sensor value for your device.
-- This integration is built to be used with the Home Assistant platform, providing an easy way to manage your Mars Hydro lights through the cloud API.
+- This integration is designed for **Mars Hydro FC...** lights and compatible fans running with the Bluetooth USB Stick.
+- It allows you to:
+  - Control light brightness and fan speed.
+  - Control device power via a switch.
+  - Monitor brightness, temperature, humidity, and fan speed.
+- This integration is built for the Home Assistant platform to manage your Mars Hydro devices through the cloud API.
 
 ## Setup
 
@@ -27,34 +46,39 @@ This integration communicates with the Mars Hydro Cloud and controls and monitor
 * Restart Home Assistant.
 
 ### Configuration:
-1. **Login to the Mars Hydro App**:
-   * The integration will require your **email** and **password** from the Mars Hydro app to authenticate and link your account.
-   
-2. **Automatic Device Discovery**:
-   * After logging in, the integration will automatically poll the Mars Hydro Cloud for your devices. It will fetch the necessary device data and create entities for:
-     * **Brightness control**: Controls the brightness of your Mars Hydro light.
-     * **Switch control**: Turns the device on/off.
-     * **Brightness sensor**: Displays the current brightness level.
+1. **Login and Connect Devices in the Mars Hydro App**:
+   - Before using this integration, ensure you have logged into the **Mars Hydro app** and connected your devices.
 
-3. **Currently Supporting Only One Device**:
-   * This integration currently supports **only one Mars Hydro device** (such as a light). Additional devices are not yet supported.
-   * The integration is designed **specifically for light devices**. Other types of devices are not currently supported.
+2. **Login**:
+   - The integration will require your **email** and **password** from the Mars Hydro app.
 
-#### Entities Created:
-- **Brightness Control**: Allows you to adjust the brightness of the connected Mars Hydro light.
-- **Switch Control**: Turns the Mars Hydro light on or off.
-- **Brightness Sensor**: Provides the current brightness level of the light (in percentage).
+3. **Automatic Device Discovery**:
+   - The integration will fetch device data and create entities for:
+     - **Light brightness control**.
+     - **Fan speed control**.
+     - **Temperature (°F/°C)**.
+     - **Humidity**.
+     - **Fan speed sensor**.
+     - **Switch control for lights and fans**.
+
+### Entities Created:
+- **Light Brightness Control**: Adjust brightness of your Mars Hydro light.
+- **Fan Speed Control**: Adjust fan speed (slider, 25%-100%).
+- **Temperature Sensors**: Displays fan temperature in °F and °C.
+- **Humidity Sensor**: Displays fan humidity.
+- **Fan Speed Sensor**: Displays fan speed percentage.
+- **Switch Control**: Power on/off for lights and fans.
 
 #### Notes:
-- This integration uses the **Mars Hydro Cloud API** to interface with the lights. Ensure your devices are connected to the cloud and reachable.
-- You may need to create an account in the Mars Hydro app and provide the app credentials (email/password) to authenticate and link your device.
+- This integration uses the **Mars Hydro Cloud API**. Ensure your devices are connected to the cloud and reachable.
+- You may need to create an account in the Mars Hydro app and provide your credentials to authenticate and link your device.
 
 #### Disclaimer:
-- This is my first custom component, and I'm still learning to code in Python. While I strive to improve the code, there may be some areas that aren't fully optimized or could contain issues. Your understanding and any feedback are greatly appreciated as I continue to improve this integration!
+- This is my first custom component, and while I strive for quality, there may still be issues. Feedback and contributions are always appreciated!
 
 ## Contributions are welcome!
 
-If you want to contribute to this integration, please read the [Contribution guidelines](CONTRIBUTING.md)
+If you want to contribute to this integration, please read the [Contribution guidelines](CONTRIBUTING.md).
 
 ***
 
