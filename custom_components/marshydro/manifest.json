@@ -1,12 +1,12 @@
 {
   "domain": "marshydro",
   "name": "Mars Hydro Cloud Integration",
-  "documentation": "https://github.com/suppqt/hass_mars_hydro",
-  "issue_tracker": "https://github.com/suppqt/hass_mars_hydro/issues",
   "codeowners": ["@suppqt"],
   "config_flow": true,
-  "requirements": ["requests>=2.26.0"],
-  "iot_class": "local_push",
   "dependencies": [],
+  "documentation": "https://github.com/suppqt/hass_mars_hydro",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/suppqt/hass_mars_hydro/issues",
+  "requirements": ["requests>=2.26.0"],
   "version": "1.0.3"
 }
